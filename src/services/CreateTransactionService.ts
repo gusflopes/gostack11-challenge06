@@ -13,7 +13,7 @@ interface CreateTransactionRequest {
 }
 
 class CreateTransactionService {
-  public async execute(data: CreateTransactionRequest): Promise<Transaction> {
+  public async execute(data: CreateTransactionRequest, ignoreBalance?: boolean): Promise<Transaction> {
     const transactionsRepository = getCustomRepository(TransactionsRepository);
     const categoriesRepository = getRepository(Category);
     const { category, title, type, value } = data;
@@ -22,9 +22,11 @@ class CreateTransactionService {
     }
 
     // Verificar se tem saldo
-    const balance = await transactionsRepository.getBalance()
-    if (type === 'outcome' && balance.total < value) {
-      throw new AppError('Not enough credit for this actions', 400)
+    if (!ignoreBalance) {
+      const balance = await transactionsRepository.getBalance()
+      if (type === 'outcome' && balance.total < value) {
+        throw new AppError('Not enough credit for this actions', 400)
+      }
     }
 
     // Verificar se categoria existe

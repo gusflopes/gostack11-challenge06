@@ -38,14 +38,15 @@ transactionsRouter.delete('/:id', async (request, response) => {
 
 transactionsRouter.post(
   '/import',
-  upload.single('csvfile'),
+  upload.single('file'),
   async (request, response) => {
     const importTransactionService = new ImportTransactionsService();
     const { file } = request;
 
     const xyz = await importTransactionService.execute(file);
 
-    return response.status(200).json({ ok: true });
+    // console.log('xyz', xyz)
+    return response.status(200).json(xyz);
   },
 );
 

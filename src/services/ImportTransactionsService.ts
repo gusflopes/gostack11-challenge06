@@ -1,9 +1,11 @@
+// import { getRepository } from 'typeorm'
 import csvParse from 'csv-parse';
 import fs from 'fs';
 import path from 'path';
-import parse from 'csv-parse';
-import Transaction from '../models/Transaction';
+// import Transaction from '../models/Transaction';
 import uploadConfig from '../config/upload';
+import CreateTransactionService from './CreateTransactionService'
+import Transaction from '../models/Transaction';
 
 interface TransactionDTO {
   title: string;
@@ -15,7 +17,7 @@ interface TransactionDTO {
 class ImportTransactionsService {
   directory = uploadConfig.directory;
 
-  private async loadCsv(filePath: string): any[] {
+  private async loadCsv(filePath: string): Promise<string[][]> {
     // code
     const readCSVStream = fs.createReadStream(filePath);
 
@@ -35,13 +37,14 @@ class ImportTransactionsService {
       parseCsv.on('end', resolve);
     });
 
+    // console.log('lines', lines)
     return lines;
   }
 
-  private async generateTransaction(input: string[]): Promise<TransactionDTO> {
+  private generateTransaction(input: string[]): TransactionDTO {
     const transaction: TransactionDTO = {
       title: input[0],
-      type: input[1],
+      type: input[1] === 'income' ? 'income' : 'outcome',
       value: parseFloat(input[2]),
       category: input[3],
     };
@@ -52,14 +55,27 @@ class ImportTransactionsService {
   public async execute(file: Express.Multer.File): Promise<any> {
     // Promise<Transaction[]>
     // TODO
+    const createTransactionService = new CreateTransactionService()
+    // const transactionRepository = getRepository(Transaction)
     const csvFilePath = `${this.directory}/${file.filename}`;
     const data = await this.loadCsv(csvFilePath);
-    console.log(file);
-    console.log(data);
+    // console.log('file', file);
+    // console.log('data', data);
     const transactions = data.map(trs => {
       return this.generateTransaction(trs);
     });
-    console.log(transactions);
+    // console.log('transactions', transactions);
+
+    const persistTransactions = async () => {
+      return Promise.all(transactions.map(async (transaction) => {
+        const persisted = await createTransactionService.execute(transaction, true)
+        // console.log(transaction)
+        // console.log(persisted)
+        return persisted
+      }))
+    }
+
+    return persistTransactions().then(data => { return data })
   }
 }
 
