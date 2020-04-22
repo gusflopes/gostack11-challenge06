@@ -13,7 +13,7 @@ let connection: Connection;
 describe('Transaction', () => {
   beforeAll(async () => {
     connection = await createConnection('test-connection');
-    await connection.runMigrations();
+    await connection.synchronize(); // run migrations
   });
 
   beforeEach(async () => {
