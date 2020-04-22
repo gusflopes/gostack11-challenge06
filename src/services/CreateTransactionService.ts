@@ -21,6 +21,12 @@ class CreateTransactionService {
       throw new AppError('Missing required fields', 400);
     }
 
+    // Verificar se tem saldo
+    const balance = await transactionsRepository.getBalance()
+    if (type === 'outcome' && balance.total < value) {
+      throw new AppError('Not enough credit for this actions', 400)
+    }
+
     // Verificar se categoria existe
     const categoryExists = await categoriesRepository.findOne({
       where: { title: category },
@@ -37,7 +43,7 @@ class CreateTransactionService {
 
     // Criar nova transaction
     const transaction = transactionsRepository.create({
-      category: categoryExists || newCategory,
+      categories: categoryExists || newCategory,
       title,
       type,
       value,

@@ -44,7 +44,7 @@ export default class CreateCategories1587556002798
         columnNames: ['category_id'],
         referencedColumnNames: ['id'],
         referencedTableName: 'categories',
-        onDelete: 'RESTRICT',
+        onDelete: 'SET NULL', // RESTRICT: mais correto
         onUpdate: 'CASCADE',
       }),
     );

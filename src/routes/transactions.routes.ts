@@ -9,10 +9,12 @@ import CreateTransactionService from '../services/CreateTransactionService';
 const transactionsRouter = Router();
 
 transactionsRouter.get('/', async (request, response) => {
-  const repository = getCustomRepository(TransactionsRepository);
-  const transactions = repository.find();
-  return response.status(200).json(transactions);
-  // TODO
+  const transactionRepository = getCustomRepository(TransactionsRepository);
+  const transactions = await transactionRepository.find();
+  const balance = await transactionRepository.getBalance();
+
+  return response.status(200).json({ transactions: transactions, balance: balance })
+
 });
 
 transactionsRouter.post('/', async (request, response) => {
@@ -24,11 +26,16 @@ transactionsRouter.post('/', async (request, response) => {
 });
 
 transactionsRouter.delete('/:id', async (request, response) => {
+  const { id } = request.params;
+  console.log(id)
+  const transactionRepository = getCustomRepository(TransactionsRepository);
+  await transactionRepository.delete(id);
+  return response.status(200).send();
   // TODO
 });
 
 transactionsRouter.post('/import', async (request, response) => {
-  // TODO
+  // code
 });
 
 export default transactionsRouter;

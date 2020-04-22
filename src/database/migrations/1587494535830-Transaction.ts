@@ -30,6 +30,7 @@ export default class Transaction1587494535830 implements MigrationInterface {
           {
             name: 'category_id',
             type: 'uuid',
+            isNullable: true,
           },
           {
             name: 'created_at',
