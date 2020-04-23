@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 // import Transaction from '../models/Transaction';
 import uploadConfig from '../config/upload';
-import CreateTransactionService from './CreateTransactionService'
+import CreateTransactionService from './CreateTransactionService';
 import Transaction from '../models/Transaction';
 
 interface TransactionDTO {
@@ -55,7 +55,7 @@ class ImportTransactionsService {
   public async execute(file: Express.Multer.File): Promise<any> {
     // Promise<Transaction[]>
     // TODO
-    const createTransactionService = new CreateTransactionService()
+    const createTransactionService = new CreateTransactionService();
     // const transactionRepository = getRepository(Transaction)
     const csvFilePath = `${this.directory}/${file.filename}`;
     const data = await this.loadCsv(csvFilePath);
@@ -67,15 +67,22 @@ class ImportTransactionsService {
     // console.log('transactions', transactions);
 
     const persistTransactions = async () => {
-      return Promise.all(transactions.map(async (transaction) => {
-        const persisted = await createTransactionService.execute(transaction, true)
-        // console.log(transaction)
-        // console.log(persisted)
-        return persisted
-      }))
-    }
+      return Promise.all(
+        transactions.map(async transaction => {
+          const persisted = await createTransactionService.execute(
+            transaction,
+            true,
+          );
+          // console.log(transaction)
+          // console.log(persisted)
+          return persisted;
+        }),
+      );
+    };
 
-    return persistTransactions().then(data => { return data })
+    return persistTransactions().then(data => {
+      return data;
+    });
   }
 }
 
